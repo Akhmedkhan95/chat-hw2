@@ -8,11 +8,13 @@ public class InMemoryAuthenticatedProvider implements AuthenticatedProvider {
         private String login;
         private String password;
         private String username;
+        private UserRole role;
 
-        public User(String login, String password, String username) {
+        public User(String login, String password, String username, UserRole role) {
             this.login = login;
             this.password = password;
             this.username = username;
+            this.role = role;
         }
     }
 
@@ -22,9 +24,9 @@ public class InMemoryAuthenticatedProvider implements AuthenticatedProvider {
     public InMemoryAuthenticatedProvider(Server server) {
         this.server = server;
         this.users = new CopyOnWriteArrayList<>();
-        this.users.add(new User("qwe", "qwe", "qwe1"));
-        this.users.add(new User("asd", "asd", "asd1"));
-        this.users.add(new User("zxc", "zxc", "zxc1"));
+        this.users.add(new User("qwe", "qwe", "qwe1", UserRole.ADMIN));
+        this.users.add(new User("asd", "asd", "asd1", UserRole.USER));
+        this.users.add(new User("zxc", "zxc", "zxc1", UserRole.USER));
     }
 
     @Override
@@ -61,21 +63,32 @@ public class InMemoryAuthenticatedProvider implements AuthenticatedProvider {
 
     @Override
     public boolean authenticate(ClientHandler clientHandler, String login, String password) {
-        String authUsername = getUsernameByLoginAndPassword(login, password);
-        if (authUsername == null) {
+        User authUser = getUserByLoginAndPassword(login, password);
+        if (authUser == null) {
             clientHandler.sendMsg("Некорректный логин/пароль");
             return false;
         }
-        if (server.isUsernameBusy(authUsername)) {
+        if (server.isUsernameBusy(authUser.username)) {
             clientHandler.sendMsg("Данная учетная запись уже занята");
             return false;
         }
 
-        clientHandler.setUsername(authUsername);
+        clientHandler.setUsername(authUser.username);
+        clientHandler.setRole(authUser.role);
         server.subscribe(clientHandler);
-        clientHandler.sendMsg("/authok " + authUsername);
+        clientHandler.sendMsg("/authok " + authUser.username);
         return true;
     }
+
+    private User getUserByLoginAndPassword(String login, String password) {
+        for (User user : users) {
+            if (user.login.equals(login) && user.password.equals(password)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
 
     @Override
     public boolean registration(ClientHandler clientHandler, String login, String password, String username) {
@@ -91,8 +104,9 @@ public class InMemoryAuthenticatedProvider implements AuthenticatedProvider {
             clientHandler.sendMsg("Указанное имя пользователя уже занято");
             return false;
         }
-        users.add(new User(login, password, username));
+        users.add(new User(login, password, username, UserRole.USER)); // Новые пользователи получают роль USER по умолчанию
         clientHandler.setUsername(username);
+        clientHandler.setRole(UserRole.USER);
         server.subscribe(clientHandler);
         clientHandler.sendMsg("/regok " + username);
         return true;

@@ -56,6 +56,23 @@ public class Server {
         return false;
     }
 
+    public void kickUser(String username, ClientHandler requester) {
+        if (requester.getRole() != UserRole.ADMIN) {
+            requester.sendMsg("У вас нет прав для выполнения этой команды");
+            return;
+        }
+
+        for (ClientHandler client : clients) {
+            if (client.getUsername().equals(username)) {
+                client.sendMsg("/kicked Вы были отключены администратором");
+                client.disconnect();
+                requester.sendMsg("Пользователь " + username + " был отключен");
+                return;
+            }
+        }
+        requester.sendMsg("Пользователь " + username + " не найден");
+    }
+
     public AuthenticatedProvider getAuthenticatedProvider() {
         return authenticatedProvider;
     }

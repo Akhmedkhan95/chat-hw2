@@ -30,6 +30,10 @@ public class Client {
                                 System.out.println("Удалось успешно зарегистрироваться и войти в чат " +
                                         "с именем пользователя : "+ message.split(" ")[1]);
                             }
+                            if (message.startsWith("/kicked ")) {
+                                System.out.println(message.substring(8));
+                                break; // Отключаем клиент
+                            }
 
                         } else {
                             System.out.println(message);
