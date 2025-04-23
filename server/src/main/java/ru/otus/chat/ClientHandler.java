@@ -10,15 +10,25 @@ public class ClientHandler {
     private Server server;
     private DataInputStream in;
     private DataOutputStream out;
+    private UserRole role;
 
     private String username;
     private boolean authenticated;
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
 
     public ClientHandler(Socket socket, Server server) throws IOException {
         this.socket = socket;
         this.server = server;
         this.in = new DataInputStream(socket.getInputStream());
         this.out = new DataOutputStream(socket.getOutputStream());
+
 
         new Thread(() -> {
             try {
@@ -68,8 +78,14 @@ public class ClientHandler {
                         if (message.equals("/exit")) {
                             sendMsg("/exitok");
                             break;
+                        } else if (message.startsWith("/kick ")) {
+                            String[] parts = message.split(" ");
+                            if (parts.length == 2) {
+                                server.kickUserByAdmin(parts[1], this);
+                            } else {
+                                sendMsg("Неверный формат команды. Используйте: /kick username");
+                            }
                         }
-
                     } else {
                         server.broadcastMessage(username + ": " + message);
                     }
