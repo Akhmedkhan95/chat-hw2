@@ -81,7 +81,7 @@ public class ClientHandler {
                         } else if (message.startsWith("/kick ")) {
                             String[] parts = message.split(" ");
                             if (parts.length == 2) {
-                                server.kickUser(parts[1], this);
+                                server.kickUserByAdmin(parts[1], this);
                             } else {
                                 sendMsg("Неверный формат команды. Используйте: /kick username");
                             }

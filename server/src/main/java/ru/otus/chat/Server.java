@@ -56,7 +56,7 @@ public class Server {
         return false;
     }
 
-    public void kickUser(String username, ClientHandler requester) {
+    public void kickUserByAdmin(String username, ClientHandler requester) {
         if (requester.getRole() != UserRole.ADMIN) {
             requester.sendMsg("У вас нет прав для выполнения этой команды");
             return;
