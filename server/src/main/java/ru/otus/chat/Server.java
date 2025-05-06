@@ -14,7 +14,7 @@ public class Server {
     public Server(int port) {
         this.port = port;
         clients = new CopyOnWriteArrayList<>();
-        authenticatedProvider = new InMemoryAuthenticatedProvider(this);
+        authenticatedProvider = new PostgresAuthenticatedProvider(this);
     }
 
     public void start() {
@@ -76,4 +76,9 @@ public class Server {
     public AuthenticatedProvider getAuthenticatedProvider() {
         return authenticatedProvider;
     }
+
+    public void stop() {
+        authenticatedProvider.shutdown();
+    }
+
 }
