@@ -1,5 +1,9 @@
 package ru.otus.chat;
 
+import java.sql.*;
+import java.util.Properties;
+
+
 public class PostgresAuthenticatedProvider implements AuthenticatedProvider {
 
     private final Server server;
