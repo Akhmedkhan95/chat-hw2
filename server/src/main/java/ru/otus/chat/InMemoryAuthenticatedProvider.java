@@ -111,4 +111,9 @@ public class InMemoryAuthenticatedProvider implements AuthenticatedProvider {
         clientHandler.sendMsg("/regok " + username);
         return true;
     }
+
+    @Override
+    public void shutdown() {
+
+    }
 }
